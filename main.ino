@@ -3,37 +3,30 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
-Servo moter0;
-Servo moter1;
-Servo moter2;
-Servo moter3;
-Adafruit_MPU6050 mpu;
+Servo moter0; // 모터 0번
+Servo moter1; // 모터 1번
+Servo moter2; // 모터 2번
+Servo moter3; // 모터 3번
+Adafruit_MPU6050 mpu; // MPU 6050
 
-int moter0_speed = 0;
-int moter1_speed = 0;
-int moter2_speed = 0;
-int moter3_speed = 0;
+int moter0_speed = 0; // 모터 0번의 속도
+int moter1_speed = 0; // 모터 1번의 속도
+int moter2_speed = 0; // 모터 2번의 속도
+int moter3_speed = 0; // 모터 3번의 속도
 
 int init_moter(){
-  // moter0 BEGIN INIT
-  moter0.attach(0);
-  moter0.write(moter0_speed);
-  // moter0 END INIT
+  moter0.attach(0); // 0 port 연결
+  moter0.write(moter0_speed); // 모터 3번 초기 속도 설정
 
-  // moter1 BEGIN INIT
-  moter1.attach(1);
-  moter1.write(moter1_speed);
-  // moter1 END INIT
+  moter1.attach(1); // 1 port 연결
+  moter1.write(moter1_speed); // 모터 3번 초기 속도 설정
 
-  // moter2 BEGIN INIT
-  moter2.attach(2);
-  moter2.write(moter2_speed);
-  // moter2 END INIT
+  moter2.attach(2); // 2 port 연결
+  moter2.write(moter2_speed); // 모터 3번 초기 속도 설정
 
-  // moter3 BEGIN INIT
-  moter3.attach(3);
-  moter3.write(moter3_speed);
-  // moter3 END INIT
+  moter3.attach(3); // 3 port 연결
+  moter3.write(moter3_speed); // 모터 3번 초기 속도 설정
+  
 }
 
 int init_mpu(){
@@ -52,6 +45,31 @@ int init_mpu(){
   
 }
 
+int print_mpu_log(){
+  
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
+  /* Print out the readings */
+  Serial.print("가속도 X: ");
+  Serial.print(a.acceleration.x);
+  Serial.print(", Y: ");
+  Serial.print(a.acceleration.y);
+  Serial.print(", Z: ");
+  Serial.print(a.acceleration.z);
+  Serial.println(" m/s^2");
+  Serial.print("회전 X: ");
+  Serial.print(g.gyro.x);
+  Serial.print(", Y: ");
+  Serial.print(g.gyro.y);
+  Serial.print(", Z: ");
+  Serial.print(g.gyro.z);
+  Serial.println(" rad/s");
+  Serial.print("오차 범위: ");
+  Serial.print(temp.temperature);
+  Serial.println(" degC");
+  Serial.println("");
+  
+}
 void setup() {
 
   Serial.begin(9600);
@@ -62,26 +80,6 @@ void setup() {
 }
 
 void loop() {
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
-  /* Print out the readings */
-  Serial.print("Acceleration X: ");
-  Serial.print(a.acceleration.x);
-  Serial.print(", Y: ");
-  Serial.print(a.acceleration.y);
-  Serial.print(", Z: ");
-  Serial.print(a.acceleration.z);
-  Serial.println(" m/s^2");
-  Serial.print("Rotation X: ");
-  Serial.print(g.gyro.x);
-  Serial.print(", Y: ");
-  Serial.print(g.gyro.y);
-  Serial.print(", Z: ");
-  Serial.print(g.gyro.z);
-  Serial.println(" rad/s");
-  Serial.print("Temperature: ");
-  Serial.print(temp.temperature);
-  Serial.println(" degC");
-  Serial.println("");
-  delay(500);
+  print_mpu_log();
+  delay(2000);
 }
