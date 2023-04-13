@@ -14,10 +14,7 @@ int moter1_speed = 0;
 int moter2_speed = 0;
 int moter3_speed = 0;
 
-void setup() {
-
-  Serial.begin(9600);
-
+int init_moter(){
   // moter0 BEGIN INIT
   moter0.attach(0);
   moter0.write(moter0_speed);
@@ -37,20 +34,29 @@ void setup() {
   moter3.attach(3);
   moter3.write(moter3_speed);
   // moter3 END INIT
+}
 
+int init_mpu(){
+  
   if (!mpu.begin()) {
-    Serial.println("Failed to find MPU6050 chip");
+    Serial.println("Failed to find MPU6050 chip"); // MPU 연결이 되지 않았을 경우 log
     while (1) {
       delay(10);
     }
   }
-  Serial.println("MPU6050 Found!"); // MPU가 있을 경우 연결 확인 print가 뜸
-  // set accelerometer range to +-8G
-  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-  // set gyro range to +- 500 deg/s
-  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-  // set filter bandwidth to 21 Hz
-  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+  
+  Serial.println("MPU6050 Found!"); // MPU가 연결 되었을 경우 log
+  mpu.setAccelerometerRange(MPU6050_RANGE_8_G); // 가속도계 오차범위 ±8G로 설정
+  mpu.setGyroRange(MPU6050_RANGE_500_DEG); // 자이로 오차범위를 ±500deg/s로 설정
+  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ); // 필터 대역폭을 ±21Hz로 설정
+  
+}
+
+void setup() {
+
+  Serial.begin(9600);
+  init_moter();
+  init_mpu();
   delay(3000);                        
 
 }
