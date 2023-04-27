@@ -83,3 +83,55 @@ void loop() {
   print_mpu_log();
   delay(2000);
 }
+/*
+#include <SoftwareSerial.h>
+#include <Servo.h>
+SoftwareSerial HC06(10,11); // RX, TX
+
+Servo moter1;
+Servo moter2;
+Servo moter3;
+Servo moter4;
+
+int moter1_speed=0;
+int moter2_speed=0;
+int moter3_speed=0;
+int moter4_speed=0;
+int input;
+
+void setup() {
+
+  Serial.begin(9600);
+  HC06.begin(9600);
+  moter1.attach(6, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
+  moter1.write(moter1_speed); // moter1 초기 속도 설정
+ 
+  moter2.attach(7, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
+  moter2.write(moter2_speed); // moter2 초기 속도 설정
+ 
+  moter3.attach(8, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
+  moter3.write(moter3_speed); // moter3 초기 속도 설정  
+ 
+  moter4.attach(9, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
+  moter4.write(moter4_speed); // moter4 초기 속도 설정
+}
+
+void loop() { // run over and over  
+    if (HC06.available()) {
+      input = HC06.read();    
+      if(input=='u'){ // 'u'
+        Serial.println('u');
+        moter4_speed+=20;
+      }else if(input=='d'){ // 'd'
+        Serial.println('d');
+        moter4_speed-=20;
+      }
+      Serial.write("\n[moter speed] : ");
+      Serial.println(moter4_speed);
+      moter4.write(moter4_speed);
+  }
+  if (Serial.available()) {
+    HC06.write(Serial.read());
+  }
+}  
+*/
