@@ -2,6 +2,8 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
+#include <SoftwareSerial.h>
+SoftwareSerial HC06(10,11); // RX, TX
 
 Servo moter0; // 모터 0번
 Servo moter1; // 모터 1번
@@ -15,17 +17,17 @@ int moter2_speed = 0; // 모터 2번의 속도
 int moter3_speed = 0; // 모터 3번의 속도
 
 int init_moter(){
-  moter0.attach(0); // 0 port 연결
-  moter0.write(moter0_speed); // 모터 3번 초기 속도 설정
-
-  moter1.attach(1); // 1 port 연결
-  moter1.write(moter1_speed); // 모터 3번 초기 속도 설정
-
-  moter2.attach(2); // 2 port 연결
-  moter2.write(moter2_speed); // 모터 3번 초기 속도 설정
-
-  moter3.attach(3); // 3 port 연결
-  moter3.write(moter3_speed); // 모터 3번 초기 속도 설정
+  moter1.attach(6, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
+  moter1.write(moter1_speed); // moter1 초기 속도 설정
+ 
+  moter2.attach(7, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
+  moter2.write(moter2_speed); // moter2 초기 속도 설정
+ 
+  moter3.attach(8, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
+  moter3.write(moter3_speed); // moter3 초기 속도 설정  
+ 
+  moter4.attach(9, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
+  moter4.write(moter4_speed); // moter4 초기 속도 설정
   
 }
 
@@ -70,49 +72,16 @@ int print_mpu_log(){
   Serial.println("");
   
 }
-void setup() {
-
-  Serial.begin(9600);
-  init_moter();
-  init_mpu();
-  delay(3000);                        
-
-}
-
-void loop() {
-  print_mpu_log();
-  delay(2000);
-}
-#include <SoftwareSerial.h>
-#include <Servo.h>
-SoftwareSerial HC06(10,11); // RX, TX
-
-Servo moter1;
-Servo moter2;
-Servo moter3;
-Servo moter4;
-
-int moter1_speed=0;
-int moter2_speed=0;
-int moter3_speed=0;
-int moter4_speed=0;
 int input;
 
 void setup() {
-
+  Serial.begin(9600);
+  init_moter();
+  init_mpu();
+  delay(3000); 
   Serial.begin(9600);
   HC06.begin(9600);
-  moter1.attach(6, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
-  moter1.write(moter1_speed); // moter1 초기 속도 설정
- 
-  moter2.attach(7, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
-  moter2.write(moter2_speed); // moter2 초기 속도 설정
- 
-  moter3.attach(8, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
-  moter3.write(moter3_speed); // moter3 초기 속도 설정  
- 
-  moter4.attach(9, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
-  moter4.write(moter4_speed); // moter4 초기 속도 설정
+
 }
 
 void loop() { // run over and over  
@@ -132,4 +101,6 @@ void loop() { // run over and over
   if (Serial.available()) {
     HC06.write(Serial.read());
   }
+  print_mpu_log();
+  delay(2000);
 }  
