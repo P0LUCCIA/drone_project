@@ -83,7 +83,6 @@ void loop() {
   print_mpu_log();
   delay(2000);
 }
-/*
 #include <SoftwareSerial.h>
 #include <Servo.h>
 SoftwareSerial HC06(10,11); // RX, TX
@@ -134,4 +133,3 @@ void loop() { // run over and over
     HC06.write(Serial.read());
   }
 }  
-*/
