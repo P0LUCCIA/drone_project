@@ -1,106 +1,95 @@
 #include <Servo.h>
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
 #include <Wire.h>
 #include <SoftwareSerial.h>
-SoftwareSerial HC06(10,11); // RX, TX
+SoftwareSerial HC06(10, 11);
 
-Servo moter0; // 모터 0번
-Servo moter1; // 모터 1번
-Servo moter2; // 모터 2번
-Servo moter3; // 모터 3번
-Adafruit_MPU6050 mpu; // MPU 6050
+#define DEBUG_LOG(data) Serial.println(data)
+#define moter1 top_left_moter // 왼쪽 위 모터
+#define moter2 below_left_moter // 왼쪽 아래 모터
+#define moter3 top_right_moter // 오른쪽 위 모터 
+#define moter4 below_right_moter // 오른쪽 아래 모터
+#define moter1_speed top_left_speed // 왼쪽 위 모터 속도
+#define moter2_speed below_left_speed // 왼쪽 아래 모터 속도
+#define moter3_speed top_right_speed // 오른쪽 위 모터 속도
+#define moter4_speed below_right_speed // 오른쪽 아래 모터 속도
+/*
+* 블루투스에 읽을 수 있는 데이터가 있는지 확인
+* returns 데이터가 있을 경우 1, 없을 경우 0을 반환
+*/
+#define Bluetooth_data_check HC06.available() 
+/*
+* 블루투스에서 데이터를 읽어옴
+* returns 블루투스에서 읽은 데이터를 반환
+*/
+#define Bluetooth_read HC06.read() 
 
-int moter0_speed = 0; // 모터 0번의 속도
-int moter1_speed = 0; // 모터 1번의 속도
-int moter2_speed = 0; // 모터 2번의 속도
-int moter3_speed = 0; // 모터 3번의 속도
+Servo top_left_moter;
+Servo below_left_moter;
+Servo top_right_moter;
+Servo below_right_moter;
+int top_left_speed = 0, below_left_speed = 0, top_right_speed = 0, below_right_speed = 0,input;
 
-int init_moter(){
-  moter1.attach(6, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
-  moter1.write(moter1_speed); // moter1 초기 속도 설정
- 
-  moter2.attach(7, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
-  moter2.write(moter2_speed); // moter2 초기 속도 설정
- 
-  moter3.attach(8, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
-  moter3.write(moter3_speed); // moter3 초기 속도 설정  
- 
-  moter4.attach(9, 1000, 2000);//(escPin, minPulseRate, maxPulseRate)
-  moter4.write(moter4_speed); // moter4 초기 속도 설정
-  
+/**
+ * 드론의 모터 초기 설정
+*/
+void init_moter() {
+	moter1.attach(6, 1000, 2000); //  6번핀의 펄스 폭을 0.001ms ~ 0.002ms으로 제한
+	moter1.write(moter1_speed); // 0으로 moter1의 속도 설정
+	delay(3000); // 3초 지연
+
+	moter2.attach(7, 1000, 2000); // 7번핀의 펄스 폭을 0.001ms ~ 0.002ms으로 제한
+	moter2.write(moter2_speed); // 0으로 moter2의 속도 설정
+	delay(3000); // 3초 지연
+
+	moter3.attach(8, 1000, 2000); // 8번핀의 펄스 폭을 0.001ms ~ 0.002ms으로 제한
+	moter3.write(moter3_speed); // 0으로 moter3의 속도 설정
+	delay(3000); // 3초 지연
+
+	moter4.attach(9, 1000, 2000); // 9번핀의 펄스 폭을 0.001ms ~ 0.002ms으로 제한
+	moter4.write(moter4_speed); // 0으로 moter4의 속도 설정
+	delay(3000); // 3초 지연
 }
-
-int init_mpu(){
-  
-  if (!mpu.begin()) {
-    Serial.println("Failed to find MPU6050 chip"); // MPU 연결이 되지 않았을 경우 log
-    while (1) {
-      delay(10);
-    }
-  }
-  
-  Serial.println("MPU6050 Found!"); // MPU가 연결 되었을 경우 log
-  mpu.setAccelerometerRange(MPU6050_RANGE_8_G); // 가속도계 오차범위 ±8G로 설정
-  mpu.setGyroRange(MPU6050_RANGE_500_DEG); // 자이로 오차범위를 ±500deg/s로 설정
-  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ); // 필터 대역폭을 ±21Hz로 설정
-  
+/*
+ * z좌표의 위치를 증가시킴
+*/
+void z_up() {
+	moter1_speed += 20;
+	moter2_speed += 20;
+	moter3_speed += 20;
+	moter4_speed += 20;
+	moter1.write(moter1_speed);
+	moter2.write(moter2_speed);
+	moter3.write(moter3_speed);
+	moter4.write(moter4_speed);
 }
-
-int print_mpu_log(){
-  
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
-  /* Print out the readings */
-  Serial.print("가속도 X: ");
-  Serial.print(a.acceleration.x);
-  Serial.print(", Y: ");
-  Serial.print(a.acceleration.y);
-  Serial.print(", Z: ");
-  Serial.print(a.acceleration.z);
-  Serial.println(" m/s^2");
-  Serial.print("회전 X: ");
-  Serial.print(g.gyro.x);
-  Serial.print(", Y: ");
-  Serial.print(g.gyro.y);
-  Serial.print(", Z: ");
-  Serial.print(g.gyro.z);
-  Serial.println(" rad/s");
-  Serial.print("오차 범위: ");
-  Serial.print(temp.temperature);
-  Serial.println(" degC");
-  Serial.println("");
-  
+/*
+ * z좌표의 위치를 감소시킴
+*/
+void z_down() {
+	moter1_speed -= 20;
+	moter2_speed -= 20;
+	moter3_speed -= 20;
+	moter4_speed -= 20;
+	moter1.write(moter1_speed);
+	moter2.write(moter2_speed);
+	moter3.write(moter3_speed);
+	moter4.write(moter4_speed);
 }
-int input;
-
 void setup() {
-  Serial.begin(9600);
-  init_moter();
-  init_mpu();
-  delay(3000); 
-  Serial.begin(9600);
-  HC06.begin(9600);
-
+	Serial.begin(9600); // 디버깅을 하기위해 데이터 전송 속도를 9600으로 설정함
+	HC06.begin(9600); // 블루투스 데이터 전송 속도를 9600으로 설정함
+	init_moter(); // 드론 모터 초기 설정
 }
-
-void loop() { // run over and over  
-    if (HC06.available()) {
-      input = HC06.read();    
-      if(input=='u'){ // 'u'
-        Serial.println('u');
-        moter4_speed+=20;
-      }else if(input=='d'){ // 'd'
-        Serial.println('d');
-        moter4_speed-=20;
-      }
-      Serial.write("\n[moter speed] : ");
-      Serial.println(moter4_speed);
-      moter4.write(moter4_speed);
-  }
-  if (Serial.available()) {
-    HC06.write(Serial.read());
-  }
-  print_mpu_log();
-  delay(2000);
-}  
+void loop() {
+	if (Bluetooth_data_check) {
+		input = Bluetooth_read;
+		if (input == 'u') {
+			DEBUG_LOG('u');
+			z_up();
+		}
+		else if (input == 'd') {
+			DEBUG_LOG('d');
+			z_down();
+		}
+	}
+}
